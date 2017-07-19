@@ -1,5 +1,9 @@
 FROM openjdk:8-jdk
 
+ARG COMMIT
+
+ENV COMMIT $COMMIT
+
 RUN groupadd --gid 1000 janusgraph \
   && useradd --uid 1000 --gid janusgraph --shell /bin/bash --create-home janusgraph
 
@@ -28,7 +32,9 @@ RUN buildDeps='ant junit junit4 libaopalliance-java libapache-pom-java libasm-ja
   && cd /home/janusgraph \
   && git clone https://github.com/JanusGraph/janusgraph.git \
   && cd janusgraph \
-  && mvn -T $(getconf _NPROCESSORS_ONLN) clean install -DskipTests=true \
+  && git checkout $COMMIT \
+  && mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+     -T $(getconf _NPROCESSORS_ONLN) clean install -DskipTests=true \
   && sed -E -i.bak 's/storage\.hostname=.*$/storage\.hostname=cassandra-server/' conf/gremlin-server/janusgraph-cassandra-es-server.properties \
   && sed -E -i.bak 's/index\.search\.hostname=.*$/index\.search\.hostname=es-server/' conf/gremlin-server/janusgraph-cassandra-es-server.properties \
   && rm conf/gremlin-server/janusgraph-cassandra-es-server.properties.bak \
