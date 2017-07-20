@@ -5,3 +5,9 @@ services:
 
 script:
     - ./test-build.sh janusgraph-server
+
+after_success:
+    - if [ "$TRAVIS_BRANCH" == "master" -a "$TRAVIS_PULL_REQUEST" == "false" ]; then
+      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      docker push yihongwang/janusgraph-server;
+      fi
