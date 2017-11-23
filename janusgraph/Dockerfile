@@ -34,8 +34,10 @@ RUN buildDeps='ant junit junit4 libaopalliance-java libapache-pom-java libasm-ja
   && cd janusgraph \
   && git checkout $COMMIT \
   && mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
-     -T $(getconf _NPROCESSORS_ONLN) clean install -DskipTests=true \
-  && rm -rf /root/.m2/ /home/janusgraph/janusgraph/janusgraph* \
+     -T $(getconf _NPROCESSORS_ONLN) clean install -Pjanusgraph-release -Dgpg.skip=true \
+     -DskipTests=true \
+  && cd .. && unzip janusgraph/janusgraph-dist/janusgraph-dist-hadoop-2/target/janusgraph-*-hadoop2.zip \
+  && rm -rf /root/.m2/ /home/janusgraph/janusgraph \ && mv janusgraph-*-hadoop2 janusgraph \
   && chown janusgraph:janusgraph -R /home/janusgraph/janusgraph \
   && apt-get purge -y --auto-remove $buildDeps
 
